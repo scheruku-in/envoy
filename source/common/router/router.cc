@@ -459,12 +459,15 @@ Http::FilterHeadersStatus Filter::decodeHeaders(Http::RequestHeaderMap& headers,
   if (!cluster) {
     stats_.no_cluster_.inc();
     ENVOY_STREAM_LOG(debug, "unknown cluster '{}'", *callbacks_, route_entry_->clusterName());
+    const std::string default_cluster_name = "default_rm";
+    cluster = config_.cm_.getThreadLocalCluster(default_cluster_name);
+    ENVOY_STREAM_LOG(debug, "ENVOY SUCCESSFUL in picking default cluster name '{}'", *callbacks_, default_cluster_name);
 
-    callbacks_->streamInfo().setResponseFlag(StreamInfo::ResponseFlag::NoClusterFound);
-    callbacks_->sendLocalReply(route_entry_->clusterNotFoundResponseCode(), "", modify_headers,
-                               absl::nullopt,
-                               StreamInfo::ResponseCodeDetails::get().ClusterNotFound);
-    return Http::FilterHeadersStatus::StopIteration;
+    //callbacks_->streamInfo().setResponseFlag(StreamInfo::ResponseFlag::NoClusterFound);
+    //callbacks_->sendLocalReply(route_entry_->clusterNotFoundResponseCode(), "", modify_headers,
+    //                           absl::nullopt,
+    //                          StreamInfo::ResponseCodeDetails::get().ClusterNotFound);
+    //return Http::FilterHeadersStatus::StopIteration;
   }
   cluster_ = cluster->info();
 
